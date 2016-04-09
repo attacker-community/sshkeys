@@ -7,7 +7,7 @@ SCRIPT=$(readlink -f $0)
 
 cd `dirname ${SCRIPT}`
 
-if [ ${1} == "install" ] ; then
+if [ "${1:-update}" == "install" ] ; then
   ln -s ${SCRIPT} /etc/cron.hourly/update-users
 else
   git fetch origin >/dev/null 2>&1 || exit 1
