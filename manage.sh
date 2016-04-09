@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o errexit nounset
+
 SCRIPT=$0
 while readlink ${SCRIPT} ; do
   SCRIPT=`readlink ${SCRIPT}`
@@ -7,14 +9,18 @@ done
 
 cd `dirname ${SCRIPT}`
 
-git fetch origin || exit 1
+if [ $1 == "install" ] ; then
+  ln -s ${SCRIPT} /etc/cron.hourly/update-users
+else
+  git fetch origin >/dev/null 2>&1 || exit 1
 
-if [ `git rev-parse master` == `git rev-parse origin/master` ] ; then
-  exit 0
+  if [ `git rev-parse master` == `git rev-parse origin/master` ] ; then
+    exit 0
+  fi
+  git merge origin/master >/dev/null 2>&1
 fi
-git merge origin/master
 
-for uline in `getent passwd` ; do
+getent passwd | while read uline ; do
   U=`echo ${uline} | cut -d : -f 1`
   H=`echo ${uline} | cut -d : -f 6`
   if [ "${U}" == "root" ] ; then
@@ -31,8 +37,9 @@ done
 
 for key in users/* ; do
   U=`basename ${key}`
-  if ! getent passwd ${U} ; then
+  if ! getent passwd ${U} >/dev/null 2>&1 ; then
     adduser --disabled-password --gecos "created by manage.sh" ${U}
+    getent group sshusers >/dev/null 2>&1 && adduser ${U} sshusers
   fi
   H=`getent passwd ${U} | cut -d : -f 6`
   mkdir -p ${H}/.ssh
