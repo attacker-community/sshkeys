@@ -42,10 +42,11 @@ for key in users/* ; do
     getent group sshusers >/dev/null 2>&1 && adduser ${U} sshusers
   fi
   H=`getent passwd ${U} | cut -d : -f 6`
+  G=`getent passwd ${U} | cut -d : -f 4`
   mkdir -p ${H}/.ssh
-  chown ${U} ${H}/.ssh
+  chown ${U}:${G} ${H}/.ssh
   chmod 700 ${H}/.ssh
   cp ${key} ${H}/.ssh/authorized_keys
-  chown ${U} ${H}/.ssh/authorized_keys
+  chown ${U}:${G} ${H}/.ssh/authorized_keys
   chmod 600 ${H}/.ssh/authorized_keys
 done
