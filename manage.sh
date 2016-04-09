@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -o errexit nounset
+set -o errexit 
+set -o nounset
 
 SCRIPT=$0
 while readlink ${SCRIPT} ; do
@@ -9,7 +10,7 @@ done
 
 cd `dirname ${SCRIPT}`
 
-if [ $1 == "install" ] ; then
+if [ ${1} == "install" ] ; then
   ln -s ${SCRIPT} /etc/cron.hourly/update-users
 else
   git fetch origin >/dev/null 2>&1 || exit 1
