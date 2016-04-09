@@ -10,7 +10,7 @@ cd `dirname ${SCRIPT}`
 git fetch origin || exit 1
 
 if [ `git rev-parse master` == `git rev-parse origin/master` ] ; then
-  return 0
+  exit 0
 fi
 git merge origin/master
 
@@ -39,4 +39,6 @@ for key in users/* ; do
   chown ${U} ${H}/.ssh
   chmod 700 ${H}/.ssh
   cp ${key} ${H}/.ssh/authorized_keys
+  chown ${U} ${H}/.ssh/authorized_keys
+  chmod 600 ${H}/.ssh/authorized_keys
 done
