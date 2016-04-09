@@ -3,10 +3,7 @@
 set -o errexit 
 set -o nounset
 
-SCRIPT=$0
-while readlink ${SCRIPT} ; do
-  SCRIPT=`readlink ${SCRIPT}`
-done
+SCRIPT=$(readlink -f $0)
 
 cd `dirname ${SCRIPT}`
 
@@ -15,15 +12,15 @@ if [ ${1} == "install" ] ; then
 else
   git fetch origin >/dev/null 2>&1 || exit 1
 
-  if [ `git rev-parse master` == `git rev-parse origin/master` ] ; then
+  if [ $(git rev-parse master) == $(git rev-parse origin/master) ] ; then
     exit 0
   fi
   git merge origin/master >/dev/null 2>&1
 fi
 
 getent passwd | while read uline ; do
-  U=`echo ${uline} | cut -d : -f 1`
-  H=`echo ${uline} | cut -d : -f 6`
+  U=$(echo ${uline} | cut -d : -f 1)
+  H=$(echo ${uline} | cut -d : -f 6)
   if [ "${U}" == "root" ] ; then
     continue
   fi
@@ -37,13 +34,13 @@ getent passwd | while read uline ; do
 done
 
 for key in users/* ; do
-  U=`basename ${key}`
+  U=$(basename ${key})
   if ! getent passwd ${U} >/dev/null 2>&1 ; then
     adduser --disabled-password --gecos "created by manage.sh" ${U}
     getent group sshusers >/dev/null 2>&1 && adduser ${U} sshusers
   fi
-  H=`getent passwd ${U} | cut -d : -f 6`
-  G=`getent passwd ${U} | cut -d : -f 4`
+  H=$(getent passwd ${U} | cut -d : -f 6)
+  G=$(getent passwd ${U} | cut -d : -f 4)
   mkdir -p ${H}/.ssh
   chown ${U}:${G} ${H}/.ssh
   chmod 700 ${H}/.ssh
